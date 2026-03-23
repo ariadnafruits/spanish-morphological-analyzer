@@ -1,21 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-from collections import Counter
-from importlib import reload #Python 3.6
+# ********** IMPORTACIÓN DE LIBRERÍAS Y DATOS ************#
+
 import nltk
+
+# Nos aseguramos de que los recursos necesarios de NLTK están disponibles.
+for resource in ["punkt", "punkt_tab"]:
+    try:
+        nltk.data.find(f"tokenizers/{resource}")
+    except LookupError:
+        nltk.download(resource)
+
 from nltk.tokenize import word_tokenize
-from nltk.probability import FreqDist
 
-reload(sys)  
-#sys.setdefaultencoding('utf8')   #Not necessary in Python 3.6
+# Lectura del fichero de texto
+with open('./texto.txt', encoding='utf-8') as f:
+    words = word_tokenize(f.read().lower())
 
-#Lectura del fichero de texto
-f = open ('texto.txt',encoding="utf-8")   # Modificado para codificación correcta del texto 
-freqdist = nltk.FreqDist()
-words=nltk.word_tokenize(f.read().lower())   # Modificado para que el texto esté en minúscula
-fd = nltk.FreqDist(word.lower() for word in words)
+# Mostramos las palabras del texto más frequentes
+fd = nltk.FreqDist(words)
 fdf= fd.most_common(30)
 
 print ('Palabras del texto ordenadas por frecuencia')
@@ -27,198 +31,205 @@ print (t)
 
 # ********** DICCIONARIO ************#
 
+# Creamos un diccionario diccionario={} con las palabras que el algoritmo buscará literalmente, 
+# con sus correspondientes categorias
+
 # Se han incluído aquí todas las partículas que no tienen flexión (preposiciones, conjunciones, abreviaturas, 
 # algunos adverbios), así como algunos nombres y verbos irregulares que aparecían en el texto de entramiento
 # Para los grupos cerrados o semicerrados de partículas (preposiciones, conjunciones, adverbios), se ha consultado
 # el Manual de la Nueva Gramática de la Lengua Española (RAE 2010)  y se han incorporado todas las más usuales.
 
-dict ={}
+diccionario ={}
 
-dict['computadora']='NCFS'
-dict['es']='VMIP3S'
-dict['que']='PRON'
-dict['y']='CONJ'
-dict['para']='PREP'
-dict['en']='PREP'
-dict['a']='PREP'
-dict['de']='PREP'
-dict['salida']='NCFS'
-dict['.']='PUNT'
-dict['o']='CONJ'
-dict['sistema']='NCMS'
-dict['por']='PREP'
-dict[',']='PUNT'
-dict['como']='CONJ'
-dict['autómata']='NCMS'
-dict['más']='ADV'
-dict['material']='NCMS'
-dict['sobre']='PREP'
-dict['permite']='VMIP3S'
-dict[';']='PUNT'
-dict['partes']='NCFP'
-dict[':']='PUNT'
-dict['computadoras']='NCFP'
-dict['dispositivo']='NCMS'
-dict['etc.']='ABRV'
-dict['al']='PREP+ART'
-dict['gestión']='NCFS'
-dict['bases']='NCFP'
-dict['informática']='NCFS'
-dict['cables']='NCMP'
-dict['e']='CONJ'
-dict['conoce']='VMIP3S'
-dict['comprende']='VMIP3S'
-dict['son']='VMIP3P'
-dict['entre']='PREP'
-dict['hace']='VMIP3S'
-dict['(']='PUNT'
-dict['u']='CONJ'
-dict[')']='PUNT'
-dict['envía']='VMIP3S'
-dict['ejecuta']='VMIP3S'
-dict['cpu']='NCFS'
-dict['dispositivos']='NCMP'
-dict['interpreta']='VMIP3S'
-dict['programa']='NCMS'
-dict['mediante']='PREP'
-dict['del']='PREP+ART'
-dict['han']='VAIP3P'
-dict['estado']='VAP0MS'
-dict['desde']='PREP'
-dict['ha']='VAIP3S'
-dict['primeros']='NUM'
-dict['pero']='CONJ'
-dict['sigue']='VMIP3S'
-dict['misma']='ADJ'
-dict['bajo']='PREP'
-dict['controla']='VMIP3S'
-dict['está']='VAIP3S'
-dict['con']='PREP'
-dict['directa']='ADJ'
-dict['escritas']='VMP0FP'
-dict['fuente']='NCFS'
-dict['le']='PRON'
-dict['líneas']='NCFP'
-dict['dicho']='VMP0MS'
-dict[' ']='PUNT'
-dict['   ']='PUNT'
-dict['-']='PUNT'
-dict['!']='PUNT'
-dict['¡']='PUNT'
-dict['¿']='PUNT'
-dict['...']='PUNT'
-dict['"']='PUNT'
-dict['abajo']='ADV'
-dict['acaso']='ADV'
-dict['adelante']='ADV'
-dict['adentro']='ADV'
-dict['afuera']='ADV'
-dict['ahí']='ADV'
-dict['ahora']='ADV'
-dict['algo']='PRON'
-dict['alguien']='PRON'
-dict['allá']='ADV'
-dict['allí']='ADV'
-dict['ante']='PREP'
-dict['antes']='ADV'
-dict['aquí']='ADV'
-dict['arriba']='ADV'
-dict['así']='ADV'
-dict['atrás']='ADV'
-dict['aunque']='CONJ'
-dict['bastantes']='DET'
-dict['bien']='ADV'
-dict['cabe']='VMIPES'
-dict['cada']='DET'
-dict['cerca']='ADV'
-dict['cómo']='PRON'
-dict['conque']='CONJ'
-dict['contra']='PREP'
-dict['cuando']='CONJ'
-dict['cuánta']='PRON'
-dict['cuanto']='PRON'
-dict['debajo']='ADV'
-dict['delante']='ADV'
-dict['demás']='PRON'
-dict['demasiado']='ADV'
-dict['dentro']='ADV'
-dict['después']='ADV'
-dict['detrás']='ADV'
-dict['donde']='PRON'
-dict['durante']='PREP'
-dict['él']='PRON'
-dict['encima']='ADV'
-dict['enseguida']='ADV'
-dict['entonces']='ADV'
-dict['fuera']='ADV'
-dict['hacia']='PREP'
-dict['hasta']='PREP'
-dict['hoy']='ADV'
-dict['incluso']='ADV'
-dict['lejos']='ADV'
-dict['mal']='ADV'
-dict['mañana']='ADV'
-dict['mas']='CONJ'
-dict['mí']='PRON'
-dict['mucho']='ADV'
-dict['nada']='PRON'
-dict['nadie']='PRON'
-dict['ni']='CONJ'
-dict['no']='ADV'
-dict['nunca']='ADV'
-dict['poco']='ADV'
-dict['porque']='CONJ'
-dict['pronto']='ADV'
-dict['qué']='PRON'
-dict['quien']='PRON'
-dict['quienes']='PRON'
-dict['quizá']='ADV'
-dict['salvo']='PREP'
-dict['según']='PREP'
-dict['si']='CONJ'
-dict['sí']='ADV'
-dict['siempre']='ADV'
-dict['sin']='PREP'
-dict['sino']='CONJ'
-dict['también']='ADV'
-dict['tan']='ADV'
-dict['tanto']='ADV'
-dict['temprano']='ADV'
-dict['tras']='PREP'
-dict['tú']='PRON'
-dict['uno']='PRON'
-dict['versus']='PREP'
-dict['yo']='PRON'
-dict['menos']='ADV'
-dict['eso']='PRON'
+diccionario['computadora']='NCFS'
+diccionario['es']='VMIP3S'
+diccionario['que']='PRON'
+diccionario['y']='CONJ'
+diccionario['para']='PREP'
+diccionario['en']='PREP'
+diccionario['a']='PREP'
+diccionario['de']='PREP'
+diccionario['salida']='NCFS'
+diccionario['.']='PUNT'
+diccionario['o']='CONJ'
+diccionario['sistema']='NCMS'
+diccionario['por']='PREP'
+diccionario[',']='PUNT'
+diccionario['como']='CONJ'
+diccionario['autómata']='NCMS'
+diccionario['más']='ADV'
+diccionario['material']='NCMS'
+diccionario['sobre']='PREP'
+diccionario['permite']='VMIP3S'
+diccionario[';']='PUNT'
+diccionario['partes']='NCFP'
+diccionario[':']='PUNT'
+diccionario['computadoras']='NCFP'
+diccionario['dispositivo']='NCMS'
+diccionario['etc.']='ABRV'
+diccionario['al']='PREP+ART'
+diccionario['gestión']='NCFS'
+diccionario['bases']='NCFP'
+diccionario['informática']='NCFS'
+diccionario['cables']='NCMP'
+diccionario['e']='CONJ'
+diccionario['conoce']='VMIP3S'
+diccionario['comprende']='VMIP3S'
+diccionario['son']='VMIP3P'
+diccionario['entre']='PREP'
+diccionario['hace']='VMIP3S'
+diccionario['(']='PUNT'
+diccionario['u']='CONJ'
+diccionario[')']='PUNT'
+diccionario['envía']='VMIP3S'
+diccionario['ejecuta']='VMIP3S'
+diccionario['cpu']='NCFS'
+diccionario['dispositivos']='NCMP'
+diccionario['interpreta']='VMIP3S'
+diccionario['programa']='NCMS'
+diccionario['mediante']='PREP'
+diccionario['del']='PREP+ART'
+diccionario['han']='VAIP3P'
+diccionario['estado']='VAP0MS'
+diccionario['desde']='PREP'
+diccionario['ha']='VAIP3S'
+diccionario['primeros']='NUM'
+diccionario['pero']='CONJ'
+diccionario['sigue']='VMIP3S'
+diccionario['misma']='ADJ'
+diccionario['bajo']='PREP'
+diccionario['controla']='VMIP3S'
+diccionario['está']='VAIP3S'
+diccionario['con']='PREP'
+diccionario['directa']='ADJ'
+diccionario['escritas']='VMP0FP'
+diccionario['fuente']='NCFS'
+diccionario['le']='PRON'
+diccionario['líneas']='NCFP'
+diccionario['dicho']='VMP0MS'
+diccionario[' ']='PUNT'
+diccionario['   ']='PUNT'
+diccionario['-']='PUNT'
+diccionario['!']='PUNT'
+diccionario['¡']='PUNT'
+diccionario['¿']='PUNT'
+diccionario['...']='PUNT'
+diccionario['"']='PUNT'
+diccionario['abajo']='ADV'
+diccionario['acaso']='ADV'
+diccionario['adelante']='ADV'
+diccionario['adentro']='ADV'
+diccionario['afuera']='ADV'
+diccionario['ahí']='ADV'
+diccionario['ahora']='ADV'
+diccionario['algo']='PRON'
+diccionario['alguien']='PRON'
+diccionario['allá']='ADV'
+diccionario['allí']='ADV'
+diccionario['ante']='PREP'
+diccionario['antes']='ADV'
+diccionario['aquí']='ADV'
+diccionario['arriba']='ADV'
+diccionario['así']='ADV'
+diccionario['atrás']='ADV'
+diccionario['aunque']='CONJ'
+diccionario['bastantes']='DET'
+diccionario['bien']='ADV'
+diccionario['cabe']='VMIPES'
+diccionario['cada']='DET'
+diccionario['cerca']='ADV'
+diccionario['cómo']='PRON'
+diccionario['conque']='CONJ'
+diccionario['contra']='PREP'
+diccionario['cuando']='CONJ'
+diccionario['cuánta']='PRON'
+diccionario['cuanto']='PRON'
+diccionario['debajo']='ADV'
+diccionario['delante']='ADV'
+diccionario['demás']='PRON'
+diccionario['demasiado']='ADV'
+diccionario['dentro']='ADV'
+diccionario['después']='ADV'
+diccionario['detrás']='ADV'
+diccionario['donde']='PRON'
+diccionario['durante']='PREP'
+diccionario['él']='PRON'
+diccionario['encima']='ADV'
+diccionario['enseguida']='ADV'
+diccionario['entonces']='ADV'
+diccionario['fuera']='ADV'
+diccionario['hacia']='PREP'
+diccionario['hasta']='PREP'
+diccionario['hoy']='ADV'
+diccionario['incluso']='ADV'
+diccionario['lejos']='ADV'
+diccionario['mal']='ADV'
+diccionario['mañana']='ADV'
+diccionario['mas']='CONJ'
+diccionario['mí']='PRON'
+diccionario['mucho']='ADV'
+diccionario['nada']='PRON'
+diccionario['nadie']='PRON'
+diccionario['ni']='CONJ'
+diccionario['no']='ADV'
+diccionario['nunca']='ADV'
+diccionario['poco']='ADV'
+diccionario['porque']='CONJ'
+diccionario['pronto']='ADV'
+diccionario['qué']='PRON'
+diccionario['quien']='PRON'
+diccionario['quienes']='PRON'
+diccionario['quizá']='ADV'
+diccionario['salvo']='PREP'
+diccionario['según']='PREP'
+diccionario['si']='CONJ'
+diccionario['sí']='ADV'
+diccionario['siempre']='ADV'
+diccionario['sin']='PREP'
+diccionario['sino']='CONJ'
+diccionario['también']='ADV'
+diccionario['tan']='ADV'
+diccionario['tanto']='ADV'
+diccionario['temprano']='ADV'
+diccionario['tras']='PREP'
+diccionario['tú']='PRON'
+diccionario['uno']='PRON'
+diccionario['versus']='PREP'
+diccionario['yo']='PRON'
+diccionario['menos']='ADV'
+diccionario['eso']='PRON'
 
-dict['entrada/salida']='NCFP' # Aunque no sea exactamente asi, preferimos que el sistema lo etiquete así.
+diccionario['entrada/salida']='NCFP' # Aunque no sea exactamente asi, preferimos que el sistema lo etiquete así.
 
 #SINGULARES Y PLURALES de palabras que aparecen en el texto de entrenamiento
-dict['salidas']='NCFP'
-dict['sistemas']='NCMP'
-dict['autómatas']='NCMP'
-dict['materiales']='NCMP'
-dict['base']='NCCS'
-dict['dato']='NCMS'
-dict['parte']='NCFS'
-dict['fuentes']='NCFP'
-dict['cable']='NCMS'
-dict['interpretan']='VMIP3P'
-dict['programas']='NCMP'
-dict['dispositivos']='NCMP' #para excluirlo de la regla ADJ -ivo(s)
-dict['estados']='NCMP'
+diccionario['salidas']='NCFP'
+diccionario['sistemas']='NCMP'
+diccionario['autómatas']='NCMP'
+diccionario['materiales']='NCMP'
+diccionario['base']='NCCS'
+diccionario['dato']='NCMS'
+diccionario['parte']='NCFS'
+diccionario['fuentes']='NCFP'
+diccionario['cable']='NCMS'
+diccionario['interpretan']='VMIP3P'
+diccionario['programas']='NCMP'
+diccionario['dispositivos']='NCMP' #para excluirlo de la regla ADJ -ivo(s)
+diccionario['estados']='NCMP'
 
 #FIN DICCIONARIO#
 
 
 # ************ EXPRESIONES REGULARES ************#
 
+# Creamos una lista p=[] con las expresiones regulares que el algoritmo aplicará a las palabras del texto, 
+# en orden de prioridad de ejecución, de más específicas a más genéricas.
+
 p=[
 
 #PALABRAS COMPLETAS flexionadas# (se consideran únicamente las que aparecen en el texto de entrenamiento)
 ################################
-#Se presentan ordenadas por categorías (al ser reglas específicas para palabras completas, el orden no es importante, mientras estén antes que las reglas más genéricas)
+#Se presentan ordenadas por categorías (al ser reglas específicas para palabras completas, el orden no es importante, 
+# mientras estén antes que las reglas más genéricas)
 
 #Determinantes (artículos)
 (r'\b(el|l[ao]s?)?$','ART'),  #el
@@ -227,7 +238,6 @@ p=[
 #demostrativos
 (r'\best?[eao]?s?$','DET'),  #este, ese
 (r'\baquel(l[ao]s?)?$','DET'),  #aquella, aquellas, aquellos (aceptará aquela,etc.)
-
 
 #indefinidos
 (r'\bun[a]?(os|s)?$','DET'),  #un
@@ -247,9 +257,6 @@ p=[
 (r'\bescas[oa]s?$','DET'),  #escaso
 (r'\bsendo[oa]s?$','DET'),  #
 (r'\btal(es)?$','DET'),  #
-(r'\bbastantes?$','DET'),  #
-
-
 
 #posesivos
 (r'\bmis?$','DET'),  #mi mis
@@ -260,7 +267,6 @@ p=[
 (r'\b[0-9]+\.?$','NUM'),  #números del cero al 99999... (en cifras) Se incluye la posibilidad que, trás la cifra, haya un número.
 (r'\b(((diez)|((on|do|tre|cator|quin|)ce)|((dieci)(séis|siete|ocho|nueve)))|(((veint[ei])|((trein|cuaren|cincuen|sesen|seten|ochen|noven)ta(\sy\s)?)))?([uú]n[oa]?|d[oó]s|tr[eé]s|cuatro|cinco|s[eé]is|siete|ocho|nueve)?)$','NUM'),  #cardinales del uno al noventa y nueve (en texto). Para el "uno" se acepta también la versión apocopada "un". Las versiones ortográficamente incorrectas veintiúno y veintiúna también se aceptan. La palabra "uno" se ha incluído en el diccionario como pronombre.
 (r'\b((primer|tercer)|(primer|segund|tercer|cuart|quint|sext|sépt|octav|noven|décim|undécim|duodécim)[oa]s?)$','NUM'),  #Ordinales del primero al duodécimo. Para el singular masculino de "primero" y "tercero", se añaden las formas apocopadas "primer" y "tercer".
-
 
 #Pronombres
 #personales
@@ -278,7 +284,6 @@ p=[
 (r'\bcual(es)?$','PRON'),  #cual cuales
 (r'\bcuy[oa]s?$','PRON'),  #cuyo cuyas ...
 
-
 #r'\balgun[oa]s?$','PRON'),  #alguno (detrás de los determinantes indefinidos, para dar prioridad a estos)
 
 (r'\b$','PRON'),   #plantilla para nuevas regex
@@ -286,7 +291,6 @@ p=[
 #Abreviaturas
 (r'\betc.?$','ABRV'),  #incluímos el punto opcional, por si algún analizador lo incluye (Freeling lo hace).
 (r'\b$','ABRV'),  #plantilla para nuevas regex
-
 
 #adjetivos terminados en sufijos característicos
 #terminación .*[oa]s?
@@ -364,14 +368,11 @@ p=[
 (r'\b.*ece$','VMIP3S'),  # -ece (únicas EXCEPCIÓN trece, contemplada más arriba)
 (r'\b$','VMIP3S'),   #plantilla para nuevas regex
 
-
 #Verbo Principal Indicativo Presente Tercera Plural
 (r'\b.*[ae]n$','VMIP3P'),  # -an, -en (envían, fabrican, componen) (EXCEPCIONES IMPORTANTES: imagen, plan)
 #(r'\b.*izan$','VMIP3P'),  # -izan (hay muchos más verbos acabados en -izar que nombres acabados en -iza
 #(r'\b.*ten$','VMIP3P'),  # -ten (hay muchos más verbos acabados en -izar que nombres acabados en -iza
 (r'\b$','VMIP3P'),   #plantilla para nuevas regex
-
-
 
 #Nombres femeninos que no acaban en -a
 (r'\b.*[cs]ión$','NCFS'),  #-ión (información, dimensión)
@@ -380,7 +381,6 @@ p=[
 (r'\b.*idades?$','NCFP'),  #-idades 
 (r'\b.*[cr]ie$','NCFS'),  #-cie -rie superfície
 (r'\b.*[cr]ies?$','NCFP'),  #-cies -ries
-
 
 #REGLAS FINALES#
 #######################################################
@@ -396,16 +396,17 @@ p=[
 
     ]
 
-#FIN EXPRESIONES REGULARES#
+# FIN EXPRESIONES REGULARES #
 
+#******** ETIQUETADO DE LAS PALABRAS DEL TEXTO ************# 
+
+# Etiquetamos el texto importado "words" aplicando las reglas incluídas en la lista de regex "p" 
+# y las categorías indicadas en "diccionario". 
 
 rt=nltk.RegexpTagger(p)
 taggedText=rt.tag(words)
 for item in taggedText:
-#   if dict.has_key(item[0]):   #has_key was removed in Python 3
-    if item[0] in dict:         # use "in" instead
-        print (item[0],' ',dict[item[0]])
+    if item[0] in diccionario:
+        print (item[0],' ',diccionario[item[0]])
     else:
         print (item[0]+' '+item[1])
-    
-sys.exit()
