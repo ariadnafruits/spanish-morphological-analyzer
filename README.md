@@ -125,6 +125,7 @@ Analizador morfológico/
 ├── texto.txt
 ├── Procedimiento y discusión.pdf
 ├── Analysis.xlsx
+├── imagenes/
 └── README.md
 ```
 
@@ -139,6 +140,14 @@ POS-tag analysis of training text provided by Freeling
 
 **Procedimiento y discusión.pdf**  
 Report describing the methodology and evaluation of the analyzer.
+
+**Procedimiento y discusión.pdf**  
+Report describing the methodology and evaluation of the analyzer.
+
+**imagenes/**  
+Diagrams illustrating the rule design process.
+
+
 
 ---
 
